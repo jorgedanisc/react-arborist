@@ -1,6 +1,9 @@
 {
   "name": "@jorgedanisc/react-arborist",
   "version": "3.5.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "source": "src/index.ts",
   "main": "dist/main/index.js",
