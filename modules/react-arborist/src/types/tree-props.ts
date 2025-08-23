@@ -2,7 +2,7 @@ import { BoolFunc } from "./utils";
 import * as handlers from "./handlers";
 import * as renderers from "./renderers";
 import { ElementType, MouseEventHandler } from "react";
-import { ListOnScrollProps } from "react-window";
+import { ListOnScrollProps, CommonProps as ReactWindowCommonProps } from "react-window";
 import { NodeApi } from "../interfaces/node-api";
 import { OpenMap } from "../state/open-slice";
 import { useDragDropManager } from "react-dnd";
@@ -24,7 +24,7 @@ export interface TreeProps<T> {
   renderDragPreview?: ElementType<renderers.DragPreviewProps>;
   renderCursor?: ElementType<renderers.CursorProps>;
   renderContainer?: ElementType<{}>;
-
+  
   /* Sizes */
   rowHeight?: number;
   overscanCount?: number;
@@ -77,4 +77,7 @@ export interface TreeProps<T> {
   onClick?: MouseEventHandler;
   onContextMenu?: MouseEventHandler;
   dndManager?: ReturnType<typeof useDragDropManager>;
+
+  outerElementType?: ReactWindowCommonProps["outerElementType"];
+  innerElementType?: ReactWindowCommonProps["innerElementType"];
 }

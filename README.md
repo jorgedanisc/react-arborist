@@ -344,6 +344,9 @@ interface TreeProps<T> {
   onClick?: MouseEventHandler;
   onContextMenu?: MouseEventHandler;
   dndManager?: DragDropManager;
+
+  outerElementType?: ReactWindowCommonProps["outerElementType"];
+  innerElementType?: ReactWindowCommonProps["innerElementType"];
 }
 ```
 
