@@ -580,65 +580,64 @@ export class TreeApi<T> {
 
   /* Scrolling */
 
-  // New helper: actual viewport height (content area), padding-safe
+  // Viewport height of the scroller (includes padding), fallback to prop height
   private getViewportHeight() {
-    // Prefer live DOM measurement (accounts for padding and box-sizing)
     const el = this.listEl.current;
-    if (el && typeof el.clientHeight === "number") return el.clientHeight;
-
-    // Fallback to props-derived size if ref not ready
-    // This approximates content-box; if your outer element is border-box,
-    // clientHeight will be used once the ref is ready.
-    return Math.max(0, this.height - this.paddingTop - this.paddingBottom);
+    return el ? el.clientHeight : this.height;
   }
 
-  // New helper: total content height (for clamping)
+  // Total scrollable content height (including vertical paddings)
   private getContentHeight() {
-    return this.visibleNodes.length * this.rowHeight;
+    return this.paddingTop + this.visibleNodes.length * this.rowHeight + this.paddingBottom;
   }
 
-  // New helper: compute and apply the correct scrollTop for an index with a given alignment
+  // Compute and apply scrollTop so that index is aligned correctly, honoring asymmetric paddings
   private scrollToIndex(index: number, align: Align = "smart") {
     const list = this.list.current;
     const scroller = this.listEl.current;
     if (!list || !scroller) return;
 
     const itemSize = this.rowHeight;
-    const itemTop = index * itemSize + itemSize + this.paddingTop;
-    const itemBottom = index * itemSize + itemSize + this.paddingBottom;
-
-    const viewport = this.getViewportHeight();
     const margin = this.scrollToMargin;
+    const viewport = this.getViewportHeight();
 
-    const current = scroller.scrollTop || 0;
-    const topBound = current + margin + this.paddingTop;
-    const bottomBound = current + viewport - margin + this.paddingBottom;
+    // Coordinates in scrollable content space (0 at very top, before paddingTop)
+    const itemTop = this.paddingTop + index * itemSize;
+    const itemBottom = itemTop + itemSize;
+
+    const current = scroller.scrollTop;
+
+    // Visible window in content space
+    const topBound = current + margin;
+    const bottomBound = current + viewport - margin;
+
+    // Helpers for targets
+    const scrollToStart = () => itemTop - margin;
+    const scrollToEnd = () => itemBottom - viewport + margin;
+    const scrollToCenter = () => itemTop - Math.round((viewport - itemSize) / 2);
 
     let target = current;
 
     switch (align) {
-      case "auto":
       case "start":
-        target = itemTop - margin;
+        target = scrollToStart();
         break;
       case "end":
-        target = itemBottom - viewport + margin;
+        target = scrollToEnd();
         break;
       case "center":
-        target = Math.round(itemTop - (viewport - itemSize) / 2);
+        target = scrollToCenter();
         break;
+      case "auto":
       case "smart":
       default: {
-        // If already fully visible (with margin), do nothing
         const fullyVisible = itemTop >= topBound && itemBottom <= bottomBound;
         if (fullyVisible) {
           target = current;
         } else if (itemTop < topBound) {
-          // Bring to top with margin
-          target = itemTop - viewport - margin;
+          target = scrollToStart();
         } else {
-          // Bring to bottom with margin
-          target = itemBottom - viewport + margin;
+          target = scrollToEnd();
         }
         break;
       }
@@ -646,7 +645,7 @@ export class TreeApi<T> {
 
     // Clamp to scrollable range
     const maxScrollTop = Math.max(0, this.getContentHeight() - viewport);
-    const clamped = Math.max(0, Math.min(target, maxScrollTop));
+    const clamped = Math.max(0, Math.min(Math.round(target), maxScrollTop));
 
     list.scrollTo(clamped);
   }

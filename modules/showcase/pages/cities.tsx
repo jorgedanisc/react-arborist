@@ -44,7 +44,7 @@ export default function Cities() {
                 selection={active?.id}
                 className={styles.tree}
                 rowClassName={styles.row}
-                padding={{ y: 15 }}
+                padding={{ top: 76, bottom: 32 }}
                 rowHeight={30}
                 indent={INDENT_STEP}
                 overscanCount={8}
