@@ -7,6 +7,17 @@ import { NodeApi } from "../interfaces/node-api";
 import { OpenMap } from "../state/open-slice";
 import { useDragDropManager } from "react-dnd";
 
+export type PaddingValue =
+  | number
+  | {
+      top?: number;
+      right?: number;
+      bottom?: number;
+      left?: number;
+      y?: number;
+      x?: number;
+    };
+
 export interface TreeProps<T> {
   /* Data Options */
   data?: readonly T[];
@@ -24,16 +35,16 @@ export interface TreeProps<T> {
   renderDragPreview?: ElementType<renderers.DragPreviewProps>;
   renderCursor?: ElementType<renderers.CursorProps>;
   renderContainer?: ElementType<{}>;
-  
+
   /* Sizes */
   rowHeight?: number;
   overscanCount?: number;
   width?: number | string;
   height?: number;
   indent?: number;
-  paddingTop?: number;
-  paddingBottom?: number;
-  padding?: number;
+  padding?: PaddingValue;
+  paddingTop?: number; // @deprecated - use padding instead
+  paddingBottom?: number; // @deprecated - use padding instead
 
   /* Config */
   childrenAccessor?: string | ((d: T) => readonly T[] | null);
@@ -44,13 +55,16 @@ export interface TreeProps<T> {
   disableEdit?: string | boolean | BoolFunc<T>;
   disableDrag?: string | boolean | BoolFunc<T>;
   disableDrop?:
-    | string
-    | boolean
-    | ((args: {
-        parentNode: NodeApi<T>;
-        dragNodes: NodeApi<T>[];
-        index: number;
-      }) => boolean);
+  | string
+  | boolean
+  | ((args: {
+    parentNode: NodeApi<T>;
+    dragNodes: NodeApi<T>[];
+    index: number;
+  }) => boolean);
+
+  /* Scrolling */
+  scrollToMargin?: number;
 
   /* Event Handlers */
   onActivate?: (node: NodeApi<T>) => void;
